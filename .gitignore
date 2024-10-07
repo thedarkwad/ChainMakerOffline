@@ -1,0 +1,14 @@
+node_modules
+
+/.cache
+/build
+/public/user-images
+/legacyUserData
+.env
+public/user_images/
+/.keys.json
+/chains
+/dist
+/js
+/public/build
+/.vscode

@@ -1,0 +1,118 @@
+{
+  "name": "chainmaker",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "version": "1.1.0",
+  "main": "desktop/index.js",
+  "scripts": {
+    "build": "tsc && tsc-alias && remix build && electron-builder",
+    "dev": "remix vite:dev",
+    "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
+    "start": "tsc && tsc-alias && remix build && electron .",
+    "postinstall": "electron-builder install-app-deps",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.1.0",
+    "@dnd-kit/modifiers": "^7.0.0",
+    "@remix-run/node": "^2.9.2",
+    "@remix-run/react": "^2.9.2",
+    "@remix-run/serve": "^2.9.2",
+    "electron-promise-ipc": "^2.2.4",
+    "express": "^4.19.2",
+    "isbot": "^4.1.0",
+    "jszip": "^3.10.1",
+    "lz-string": "^1.5.0",
+    "mongoose": "^8.5.3",
+    "mysql2": "^3.11.0",
+    "nanoid": "^5.0.7",
+    "react": "^18.2.0",
+    "react-custom-scrollbars-2": "^4.5.0",
+    "react-dom": "^18.2.0",
+    "react-textarea-autosize": "^8.5.3",
+    "react-toastify": "^10.0.5",
+    "turndown": "^7.2.0"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "^2.9.2",
+    "@types/express": "^4.17.21",
+    "@types/react": "^18.2.20",
+    "@types/react-dom": "^18.2.7",
+    "@types/turndown": "^5.0.5",
+    "@types/wicg-file-system-access": "^2023.10.5",
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
+    "@typescript-eslint/parser": "^6.7.4",
+    "electron": "^32.0.0",
+    "electron-builder": "^25.0.5",
+    "eslint": "^8.38.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "tsc-alias": "^1.8.10",
+    "typescript": "^5.1.6",
+    "vite": "^5.1.0",
+    "vite-tsconfig-paths": "^4.2.1"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "fileAssociations": [
+    {
+      "ext": "json",
+      "name": "JSON File",
+      "role": "Editor",
+      "perMachine": true
+    },
+    {
+      "ext": "chain",
+      "name": "ChainMaker File",
+      "role": "Editor",
+      "perMachine": true
+    }
+  ],
+  "build": {
+    "productName": "ChainMaker",
+    "mac": {
+      "target": [
+        "zip"
+      ],
+      "icon": "public/icon.ico"
+    },
+    "win": {
+      "publisherName": "ChainMaker",
+      "target": [
+        "nsis"
+      ],
+      "icon": "public/icon.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "tar.gz"
+      ],
+      "icon": "public/icon.png"
+    },
+    "files": [
+      "build",
+      "desktop",
+      "public",
+      "remix.config.js",
+      "remix-electron",
+      "remix-electron/node_modules",
+      "js"
+    ],
+    "extraResources": [
+      {
+        "from": "public",
+        "to": "public",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "includeSubNodeModules": true
+  }
+}

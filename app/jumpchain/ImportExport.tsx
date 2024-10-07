@@ -29,9 +29,16 @@ export function importChain(rawObject: any) {
         }
     }
 
-    for (let characterId in chain.characterList) {
-        chain.purchaseGroups[characterId] = chain.purchaseGroups[characterId] || {};
+    for (let characterId of chain.characterList) {
+        if (!chain.purchaseGroups[characterId]) {
+            chain.purchaseGroups[characterId] = {};
+            chain.pushUpdate({
+                dataField: ["purchaseGroups"],
+                action: Action.Update
+            });
+        }
     }
+
 
 
     for (let pId in chain.purchases) {

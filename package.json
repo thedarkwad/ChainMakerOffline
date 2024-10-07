@@ -3,7 +3,7 @@
   "private": true,
   "sideEffects": false,
   "type": "module",
-  "version": "1.1.0",
+  "version": "2.1.0",
   "main": "desktop/index.js",
   "scripts": {
     "build": "tsc && tsc-alias && remix build && electron-builder",
@@ -113,6 +113,12 @@
         ]
       }
     ],
+    "nsis": {
+      "allowElevation": false,
+      "allowToChangeInstallationDirectory": true,
+      "oneClick": false,
+      "perMachine": true
+    },
     "includeSubNodeModules": true
   }
 }

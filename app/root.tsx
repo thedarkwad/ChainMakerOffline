@@ -8,15 +8,17 @@ import {
   useNavigate,
 } from "@remix-run/react";
 import styles from "./styles/main.css?url";
+import toastifyStyles from "./styles/ReactToastify.css";
+
 import { LinksFunction } from "@remix-run/node";
 
-import 'react-toastify/dist/ReactToastify.css';
 import { useEffect, useRef, useState } from "react";
 import { ToastContainer, Zoom } from "react-toastify";
 import { IpcAPI } from "./loaderContextType";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
+  { rel: "stylesheet", href: toastifyStyles }
 ];
 
 export interface GlobalSettings {

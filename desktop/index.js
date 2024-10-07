@@ -14,10 +14,12 @@ let pendingSave = "";
 
 const __dirname = import.meta.dirname;
 
+let dev = true;
+
 app.on("ready", async () => {
   try {
     const url = await initRemix({
-      publicFolder: join(process.resourcesPath, "./public"),
+      publicFolder: join(dev ? __dirname : process.resourcesPath, dev ? "../public" : "./public"),
       serverBuild: "file://" + join(__dirname, "../build/index.cjs").replaceAll("\\", "/"),
       mode: "production",
       /** @type {import("~/context").LoadContext} */
@@ -44,6 +46,9 @@ app.on("ready", async () => {
         preload: join(__dirname, "../desktop/preload.cjs")
       }
     });
+
+    if (dev)
+      win.webContents.toggleDevTools();
 
 
     await win.loadURL(url);

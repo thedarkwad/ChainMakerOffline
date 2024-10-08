@@ -11,7 +11,7 @@ export const chainSource = { current: null };
 
 const validFileExtensions = ["jpeg", "jpg", "gif", "png", "webp", "jfif"];
 const imageFolder = "user_images"
-const imagePathRegex = new RegExp(`^${imageFolder}\/(\\d+)\\.(${validFileExtensions.join("|")})\$`, "g")
+const imagePathRegex = new RegExp(`^${imageFolder}\/(\\d+)\\.(${validFileExtensions.join("|")})\$`)
 
 export const tempPath = path.join(app.getPath("temp"), "ChainMaker");
 export const tempImagesPath = path.join(tempPath, imageFolder);
@@ -123,14 +123,15 @@ export let load = async (win, customPath = "") => {
         if (!jsonFile)
           throw new Error();
         if (!existsSync(tempImagesPath))
-            await fs.mkdir(tempImagesPath, { recursive: true })
+          await fs.mkdir(tempImagesPath, { recursive: true })
         chain.current = await jsonFile.async("string");
         Object.keys(zipFile.files).forEach(async (fileName) => {
           if (!imagePathRegex.test(fileName)) {
-            if (fileName != "data.json" && fileName != imageFolder + "/")
+            if (fileName != "data.json" && fileName != imageFolder + "/") {
               dialog.showErrorBox("Warning. Suspcious file contents detected.",
                 "It appears that this .chain file contains additional data of an unknown structure. Please be wary.");
-            return;
+            }
+              return;
           }
           zipFile.files[fileName].nodeStream().pipe(createWriteStream(path.join(tempPath, fileName)));
         }

@@ -7,6 +7,9 @@ import { save, saveWarning, tempImagesPath } from "./chainManagement.js"
 import { chain, load, createNewChain, currentVersion, deleteImages } from "./chainManagement.js"
 import { resourcesPath } from "node:process"
 
+app.commandLine.appendSwitch('ignore-certificate-errors');
+app.commandLine.appendSwitch('allow-insecure-localhost', 'true');
+
 /** @type {BrowserWindow} */
 let win;
 /** @type {"save" || "save-as" || ""} */
@@ -14,7 +17,7 @@ let pendingSave = "";
 
 const __dirname = import.meta.dirname;
 
-let dev = true;
+let dev = false;
 
 app.on("ready", async () => {
   try {
@@ -56,7 +59,8 @@ app.on("ready", async () => {
     let updateSettings = (settings) => win.webContents.send("update-settings", settings);
     let themes = [["Arctic", "blue"], ["Lavender", "lavender"], ["Autumn", "autumn"], ["Neon", "neon"]];
     let scales = [["Smallest", 0.8], ["Small", 0.9], ["Normal", 1], ["Large", 1.1], ["Largest", 1.2]];
-    let settings = JSON.parse(await win.webContents.executeJavaScript('localStorage.getItem("settings");', true));
+    let settings = JSON.parse(await win.webContents.executeJavaScript('localStorage.getItem("settings");', true)) 
+    || { autosave: true, theme: "neon", fontSize: 1, imperialUnits: true, compact: false };
 
     let menu = electron.Menu.buildFromTemplate([
       {
@@ -202,7 +206,7 @@ app.on("ready", async () => {
 
 
     ipcMain.addListener('request-new', async (event, formData) => {
-        await createNewChain(win, formData)
+      await createNewChain(win, formData)
     });
 
 

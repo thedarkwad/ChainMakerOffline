@@ -37,9 +37,10 @@ export function importChain(rawObject: any) {
                 action: Action.Update
             });
         }
+        Object.values(chain.purchaseGroups[characterId]).forEach((group) => {
+            group.components = group.components.filter(id => id in chain.purchases);
+        })
     }
-
-
 
     for (let pId in chain.purchases) {
         if (Number(pId) != chain.purchases[pId]._id) {

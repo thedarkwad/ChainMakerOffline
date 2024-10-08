@@ -421,6 +421,15 @@ export default class Chain {
 
         }
 
+        if (purchase.purchaseGroup !== undefined) {
+            this.purchaseGroups[purchase.characterId][purchase.purchaseGroup].components = 
+            this.purchaseGroups[purchase.characterId][purchase.purchaseGroup].components.filter (id => id != purchase.id);
+            this.pushUpdate({
+                dataField: ["purchaseGroups", purchase.characterId, purchase.purchaseGroup, "components"],
+                action: Action.Update
+            });
+        }
+
         if (purchase.type == PurchaseType.Perk) {
             this.characters[purchase.characterId].perkCount--;
             this.pushUpdate({
@@ -507,6 +516,14 @@ export default class Chain {
                         action: Action.Update
                     });
                 }
+                if (this.purchases[id].purchaseGroup !== undefined) {
+                    this.purchaseGroups[this.purchases[id].characterId][this.purchases[id].purchaseGroup].components = 
+                    this.purchaseGroups[this.purchases[id].characterId][this.purchases[id].purchaseGroup].components.filter (id2 => id2 != id);
+                    this.pushUpdate({
+                        dataField: ["purchaseGroups", this.purchases[id].characterId, this.purchases[id].purchaseGroup, "components"],
+                        action: Action.Update
+                    });
+                }        
                 delete this.purchases[id];
                 this.pushUpdate({
                     dataField: ["purchases", id],

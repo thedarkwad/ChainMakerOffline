@@ -7,6 +7,7 @@
   "main": "desktop/index.js",
   "scripts": {
     "build": "tsc && tsc-alias && remix build && electron-builder",
+    "build-portable": "tsc && tsc-alias && remix build && electron-builder --win=portable",
     "dev": "remix vite:dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "tsc && tsc-alias && remix build && electron .",

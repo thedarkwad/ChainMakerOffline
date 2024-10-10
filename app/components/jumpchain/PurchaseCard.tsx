@@ -204,7 +204,7 @@ const PurchaseCardView: FunctionComponent<EditableComponentProps<Purchase>
         let itemLike = p.data.type == PurchaseType.Item || (p.data.type == PurchaseType.Supplement && chain.supplements[p.data.supplement!].itemLike);
 
         if (p.data.purchaseGroup !== undefined
-            && [PurchaseType.Item, PurchaseType.Perk, PurchaseType.Supplement].includes(p.data.type)) 
+            && [PurchaseType.Item, PurchaseType.Perk, PurchaseType.Supplement].includes(p.data.type))
             leftBottomSection = <div className="faint-text margin-bottom">
                 <span className="bold">
                     Purchase Group:
@@ -481,29 +481,31 @@ const PurchaseCardEdit: FunctionComponent<EditableComponentProps<Purchase> &
 
     let rightBottomSection: ReactNode = <></>;
 
-    let availableGroups = Object.keys(chain.purchaseGroups[p.data.characterId]).map(Number).filter(
-        (pgId) => !p.data.supplement ? chain.purchaseGroups[p.data.characterId][pgId].type == p.data.type
-            : ((chain.purchaseGroups[p.data.characterId][pgId].type == PurchaseType.Item) == chain.supplements[p.data.supplement!].itemLike)
-    );
-    if (availableGroups.length > 0
-        && [PurchaseType.Item, PurchaseType.Perk, PurchaseType.Supplement].includes(p.data.type))
-        rightBottomSection = <Multiselect
-            className="margin-bottom"
-            width="min(100%, 15rem)"
-            name={"group"}
-            options={{
-                ...Object.fromEntries(availableGroups.map((id) =>
-                    [id, { name: chain.purchaseGroups[p.data.characterId][id].name }]
-                )), "-1": { name: "None" }
-            }}
-            value={{
-                ...Object.fromEntries(availableGroups.map((id) =>
-                    [id, id == p.data.purchaseGroup]
-                )), "-1": p.data.purchaseGroup === undefined
-            }}
-            single
-            title="Group"
-        />
+    if ([PurchaseType.Item, PurchaseType.Perk, PurchaseType.Supplement].includes(p.data.type)) {
+
+        let availableGroups = Object.keys(chain.purchaseGroups[p.data.characterId]).map(Number).filter(
+            (pgId) => !p.data.supplement ? chain.purchaseGroups[p.data.characterId][pgId].type == p.data.type
+                : ((chain.purchaseGroups[p.data.characterId][pgId].type == PurchaseType.Item) == chain.supplements[p.data.supplement!].itemLike)
+        );
+        if (availableGroups.length > 0)
+            rightBottomSection = <Multiselect
+                className="margin-bottom"
+                width="min(100%, 15rem)"
+                name={"group"}
+                options={{
+                    ...Object.fromEntries(availableGroups.map((id) =>
+                        [id, { name: chain.purchaseGroups[p.data.characterId][id].name }]
+                    )), "-1": { name: "None" }
+                }}
+                value={{
+                    ...Object.fromEntries(availableGroups.map((id) =>
+                        [id, id == p.data.purchaseGroup]
+                    )), "-1": p.data.purchaseGroup === undefined
+                }}
+                single
+                title="Group"
+            />
+    }
 
     let sideSection;
 

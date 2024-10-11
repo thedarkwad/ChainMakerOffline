@@ -161,6 +161,7 @@ export let createNewChain = async (win, body = {}) => {
   formData.append("warehouseMod", body.warehouseMod || "0");
   formData.append("bodyMod", body.bodyMod || "0");
   chain.current = exportChainFragment(newChain(formData));
+  chainSource.current = null;
   currentVersion++;
   win.webContents.reload();
 }

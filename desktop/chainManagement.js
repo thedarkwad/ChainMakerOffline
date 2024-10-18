@@ -10,13 +10,41 @@ export const chain = { current: undefined };
 export const chainSource = { current: null };
 
 const validFileExtensions = ["jpeg", "jpg", "gif", "png", "webp", "jfif"];
-const imageFolder = "user_images"
-const imagePathRegex = new RegExp(`^${imageFolder}\/(\\d+)\\.(${validFileExtensions.join("|")})\$`)
+const imageFolder = "user_images";
+const imagePathRegex = new RegExp(`^${imageFolder}\/(\\d+)\\.(${validFileExtensions.join("|")})\$`);
 
 export const tempPath = path.join(app.getPath("temp"), "ChainMaker");
 export const tempImagesPath = path.join(tempPath, imageFolder);
+export const backupPath = path.join(app.getPath("userData"), "backups");
+
+const maximumBackups = 10;
 
 export let currentVersion = 0;
+
+export let cleanUpBackups = async () => {
+
+  try {
+    let oldestFileTime = undefined;
+    let oldestFile = "";
+
+    let files = await fs.readdir(backupPath);
+    if (files.length < maximumBackups)
+      return;
+
+    for (const file of await fs.readdir(backupPath)) {
+      let fileTime = (await fs.stat(path.join(backupPath, file))).ctime.getMilliseconds;
+      if (!oldestFileTime || fileTime < oldestFileTime) {
+        oldestFile = file;
+        oldestFileTime = fileTime;
+      }
+    }
+    await fs.unlink(path.join(backupPath, oldestFile));
+  }
+  catch (e) {
+    dialog.showErrorBox("Save Failed", String(e));
+  }
+
+}
 
 export let deleteImages = async () => {
   try {
@@ -48,7 +76,7 @@ export let save = async (saveAs) => {
   });
   if (!chainSource.current || saveAs) {
     let saveSelection = await dialog.showSaveDialog({
-      defaultPath: `${chain.name || "[untitled_chain]"}`,
+      defaultPath: `${partialChain.name || "[untitled_chain]"}`,
       filters: [
         {
           name: "ChainMaker File With Images",
@@ -65,10 +93,28 @@ export let save = async (saveAs) => {
       return;
   }
 
+  const relativeToBackup = path.relative(backupPath, chainSource.current);
+  if (relativeToBackup && !relativeToBackup.startsWith('..') && !path.isAbsolute(relativeToBackup)) {
+    dialog.showErrorBox(
+      "Cannot Save In This Location",
+      "Files in the backup folder are regularly overwritten. Please select another save location.",
+    );
+    chainSource.current = null;
+    save(saveAs);
+    return;
+  }
+
+
   try {
+    if (!existsSync(backupPath))
+      await fs.mkdir(backupPath, { recursive: true });
+    cleanUpBackups();
     let isJSON = chainSource.current.split(".").pop().toLowerCase() != "chain";
-    if (isJSON)
+    let backupFile = path.join(backupPath, partialChain.name + String(Date.now() % 10000) + (isJSON ? ".json" : ".chain"));
+    if (isJSON) {
       await fs.writeFile(chainSource.current, chain.current);
+      await fs.writeFile(backupFile, chain.current);
+    }
     else {
       var outputZip = new JSZip();
       outputZip.file("data.json", chain.current);
@@ -83,6 +129,7 @@ export let save = async (saveAs) => {
         }
       }
       outputZip.generateNodeStream().pipe(createWriteStream(chainSource.current));
+      outputZip.generateNodeStream().pipe(createWriteStream(backupFile));
     }
   } catch (e) {
     console.log(e);
@@ -93,20 +140,16 @@ export let save = async (saveAs) => {
 /** @type {(win: BrowserWindow, path: string) => Promise<void>} */
 export let load = async (win, customPath = "") => {
   if (!saveWarning()) return;
-  let newSource;
-  if (!customPath) {
-    let fileSelection = await dialog.showOpenDialog({
-      properties: ['openFile'], filters: [
-        { name: 'ChainMaker Files', extensions: ['json', 'chain'] },
-        { name: 'All Files', extensions: ['*'] }
-      ]
-    });
+  let fileSelection = await dialog.showOpenDialog({
+    properties: ['openFile'], filters: [
+      { name: 'ChainMaker Files', extensions: ['json', 'chain'] },
+      { name: 'All Files', extensions: ['*'] }
+    ],
+    ...(customPath ? { defaultPath: customPath } : {})
+  });
 
-    if (!fileSelection.filePaths.length) return;
-    newSource = fileSelection.filePaths[0];
-  } else {
-    newSource = customPath;
-  }
+  if (!fileSelection.filePaths.length) return;
+  let newSource = fileSelection.filePaths[0];
 
   try {
     let fileExtension = newSource.split(".").pop().toLowerCase();
@@ -131,7 +174,7 @@ export let load = async (win, customPath = "") => {
               dialog.showErrorBox("Warning. Suspcious file contents detected.",
                 "It appears that this .chain file contains additional data of an unknown structure. Please be wary.");
             }
-              return;
+            return;
           }
           zipFile.files[fileName].nodeStream().pipe(createWriteStream(path.join(tempPath, fileName)));
         }
@@ -142,7 +185,7 @@ export let load = async (win, customPath = "") => {
         return;
     }
 
-    chainSource.current = newSource;
+    chainSource.current = customPath ? null : newSource;
     currentVersion++;
     win.webContents.reload();
   } catch (e) {

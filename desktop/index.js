@@ -3,7 +3,7 @@ import { initRemix } from "../remix-electron/dist/index.cjs"
 import { app, BrowserWindow, dialog, ipcMain } from "electron"
 import electron from "electron"
 import { join } from "node:path"
-import { save, saveWarning, tempImagesPath } from "./chainManagement.js"
+import { backupPath, chainSource, save, saveWarning, tempImagesPath } from "./chainManagement.js"
 import { chain, load, createNewChain, currentVersion, deleteImages } from "./chainManagement.js"
 import { resourcesPath } from "node:process"
 
@@ -80,6 +80,12 @@ app.on("ready", async () => {
               await load(win);
             }
           },
+          {
+            label: 'Open Chain From Backup',
+            click: async () => {
+              await load(win, backupPath);
+            }
+          },
           { type: 'separator' },
           {
             label: 'Save Chain',
@@ -103,6 +109,7 @@ app.on("ready", async () => {
             click: async () => {
               if (!saveWarning()) return;
               chain.current = undefined;
+              chainSource.current = undefined;
               await deleteImages();
               await win.loadURL(url);
             }
